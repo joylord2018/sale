@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Cst_customerdao" >
+  <resultMap id="BaseResultMap" type="Cst_customer" >
+    <id column="cust_no" property="custNo"/>
+    <result column="cust_name" property="custName"/>
+    <result column="cust_region" property="custRegion"/>
+    <result column="cust_manager_id" property="custManagerId"/>
+    <result column="cust_level" property="custLevel"/>
+    <result column="cust_satisfy" property="custSatisfy"/>
+    <result column="cust_credit" property="custCredit"/>
+    <result column="cust_addr" property="custAddr"/>
+    <result column="cust_zip" property="custZip"/>
+    <result column="cust_tel" property="custTel"/>
+    <result column="cust_fax" property="custFax"/>
+    <result column="cust_website" property="custWebsite"/>
+    <result column="cust_licence_no" property="custLicenceNo"/>
+    <result column="cust_chieftain" property="custChieftain"/>
+    <result column="cust_bankroll" property="custBankroll"/>
+    <result column="cust_turnover" property="custTurnover"/>
+    <result column="cust_bank" property="custBank"/>
+    <result column="cust_bank_account" property="custBankAccount"/>
+    <result column="cust_local_tax_no" property="custLocalTaxNo"/>
+    <result column="cust_national_tax_no" property="custNationalTaxNo"/>
+    <result column="cust_status" property="custStatus"/>
+    <result column="crname" property="crname"/>
+    <result column="cmname" property="cmname"/>
+    <result column="clname" property="clname"/>
+  </resultMap>
+  <insert id="addCst_cust">
+  	insert into cst_customer (cust_no, cust_name, cust_region, cust_manager_id, cust_level, cust_satisfy, cust_credit, cust_addr, cust_zip, cust_tel, cust_fax, cust_website, cust_licence_no, cust_chieftain, cust_bankroll, cust_turnover, cust_bank, cust_bank_account, cust_local_tax_no, cust_national_tax_no, cust_status) 
+  	values(#{cc.custNo},#{cc.custName},#{cc.custRegion},#{cc.custManagerId},#{cc.custLevel},#{cc.custSatisfy},#{cc.custCredit},#{cc.custAddr},#{cc.custZip},#{cc.custTel},#{cc.custFax},#{cc.custWebsite},#{cc.custLicenceNo},#{cc.custChieftain},#{cc.custBankroll},#{cc.custTurnover},#{cc.custBank},#{cc.custBankAccount},#{cc.custLocalTaxNo},#{cc.custNationalTaxNo},#{cc.custStatus});
+  </insert>
+  <!-- 查询所有 -->
+  <select id="findccli" resultMap="BaseResultMap">
+  	SELECT cc.cust_no,cc.cust_name,bd.dict_item as clname,bd2.dict_item as crname,su.`usr_name` as cmname ,cust_manager_id FROM cst_customer cc
+  	INNER JOIN (SELECT * FROM `bas_dict` WHERE dict_type="cust_leave") bd ON bd.dict_value=cc.`cust_level`
+  	INNER JOIN (SELECT * FROM `bas_dict` WHERE dict_type="cust_region") bd2 ON bd2.dict_value=cc.`cust_region`
+  	INNER JOIN `sys_user` su ON su.`usr_id`=cc.`cust_manager_id`
+  	<where>
+  		<if test="ccvo.custno!=null and ccvo.custno!=''"> and cc.cust_no like concat('%',#{ccvo.custno},'%')</if>
+  		<if test="ccvo.custname!=null and ccvo.custname!=''"> and cc.cust_name like concat('%',#{ccvo.custname},'%')</if>
+  		<if test="ccvo.custregion!=null and ccvo.custregion!=''"> and cc.cust_region = #{ccvo.custregion}</if>
+  		<if test="ccvo.managename!=null and ccvo.managename!=''"> and su.`usr_name` like concat('%',#{ccvo.managename},'%')</if>
+  		<if test="ccvo.custleave!=null and ccvo.custleave!=''"> and cc.cust_level = #{ccvo.custleave}</if>
+  		<if test="1==1"> and cust_status=1</if>
+  	</where>
+  	order by cc.cust_no limit #{ccvo.index},#{ccvo.pagesize}
+  </select>
+  
+   <!-- 查询总数 -->
+  <select id="findcccount" resultType="int">
+  	SELECT count(cc.cust_no) FROM cst_customer cc
+  	INNER JOIN (SELECT * FROM `bas_dict` WHERE dict_type="cust_leave") bd ON bd.dict_value=cc.`cust_level`
+  	INNER JOIN (SELECT * FROM `bas_dict` WHERE dict_type="cust_region") bd2 ON bd2.dict_value=cc.`cust_region`
+  	INNER JOIN `sys_user` su ON su.`usr_id`=cc.`cust_manager_id`
+  	<where>
+  		<if test="ccvo.custno!=null and ccvo.custno!=''"> and cc.cust_no like concat('%',#{ccvo.custno},'%')</if>
+  		<if test="ccvo.custname!=null and ccvo.custname!=''"> and cc.cust_name like concat('%',#{ccvo.custname},'%')</if>
+  		<if test="ccvo.custregion!=null and ccvo.custregion!=''"> and cc.cust_region = #{ccvo.custregion}</if>
+  		<if test="ccvo.managename!=null and ccvo.managename!=''"> and su.`usr_name` like concat('%',#{ccvo.managename},'%')</if>
+  		<if test="ccvo.custleave!=null and ccvo.custleave!=''"> and cc.cust_level = #{ccvo.custleave}</if>
+  		<if test="1==1"> and cust_status=1</if>
+  	</where>
+  </select>
+  
+  <select id="findcno" resultType="String">
+  	select cust_no from cst_customer order by cust_no desc limit 0,1
+  </select>
+  <select id="findccwait" resultMap="BaseResultMap">
+  	SELECT * FROM cst_customer WHERE cust_region IS NULL and cust_level is null
+  </select>
+  <select id="findbyid" resultMap="BaseResultMap">
+  	SELECT * FROM cst_customer WHERE cust_no=#{id}
+  </select>
+  
+  <update id="updateccs">
+  	update cst_customer 
+  	<set>
+  		<if test="cc.custName!=null and cc.custName!=''"> cust_name=#{cc.custName},</if>
+  		<if test="cc.custRegion!=null and cc.custRegion!=''"> cust_region=#{cc.custRegion},</if>
+  		<if test="cc.custManagerId!=null and cc.custManagerId!=''"> cust_manager_id=#{cc.custManagerId},</if>
+  		<if test="cc.custLevel!=null and cc.custLevel!=''"> cust_level=#{cc.custLevel},</if>
+  		<if test="cc.custSatisfy!=null and cc.custSatisfy!=''"> cust_satisfy=#{cc.custSatisfy},</if>
+  		<if test="cc.custCredit!=null and cc.custCredit!=''"> cust_credit=#{cc.custCredit},</if>
+  		<if test="cc.custAddr!=null and cc.custAddr!=''"> cust_addr=#{cc.custAddr},</if>
+  		<if test="cc.custZip!=null and cc.custZip!=''"> cust_zip=#{cc.custZip},</if>
+  		<if test="cc.custZip!=null and cc.custZip!=''"> cust_tel=#{cc.custTel},</if>
+  		<if test="cc.custFax!=null and cc.custFax!=''"> cust_fax=#{cc.custFax},</if>
+  		<if test="cc.custFax!=null and cc.custFax!=''"> cust_website=#{cc.custWebsite},</if>
+  		<if test="cc.custLicenceNo!=null and cc.custLicenceNo!=''"> cust_licence_no=#{cc.custLicenceNo},</if>
+  		<if test="cc.custChieftain!=null and cc.custChieftain!=''"> cust_chieftain=#{cc.custChieftain},</if>
+  		<if test="cc.custBankroll!=null and cc.custBankroll!=''"> cust_bankroll=#{cc.custBankroll},</if>
+  		<if test="cc.custTurnover!=null and cc.custTurnover!=''"> cust_turnover=#{cc.custTurnover},</if>
+  		<if test="cc.custBank!=null and cc.custBank!=''"> cust_bank=#{cc.custBank},</if>
+  		<if test="cc.custBankAccount!=null and cc.custBankAccount!=''"> cust_bank_account=#{cc.custBankAccount},</if>
+  		<if test="cc.custLocalTaxNo!=null and cc.custLocalTaxNo!=''"> cust_local_tax_no=#{cc.custLocalTaxNo},</if>
+  		<if test="cc.custNationalTaxNo!=null and cc.custNationalTaxNo!=''"> cust_national_tax_no=#{cc.custNationalTaxNo},</if>
+  	</set>
+  	where cust_no=#{cc.custNo}
+  </update>
+</mapper>

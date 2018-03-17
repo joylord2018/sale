@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Cst_activitydao" >
+  <resultMap id="BaseResultMap" type="Cst_activity" >
+    <id column="atv_id" property="atvId"/>
+    <result column="atv_cust_no" property="atvCustNo"/>
+    <result column="atv_date" property="atvDate"/>
+    <result column="atv_place" property="atvPlace"/>
+    <result column="atv_title" property="atvTitle"/>
+    <result column="atv_desc" property="atvDesc"/>
+    <result column="atv_memo" property="atvMemo"/>
+    <!-- dto -->
+  	<result column="cname" property="cname"/>
+  </resultMap>
+  <select id="findbycid" resultMap="BaseResultMap">
+  	select ca.*,cc.cust_name as cname from cst_activity ca 
+  	inner join cst_customer cc on cc.cust_no=ca.atv_cust_no
+  	where ca.atv_cust_no=#{cid}
+  </select>
+  <insert id="addca">
+  	insert into cst_activity (atv_cust_no,atv_date,atv_place,atv_title,atv_desc,atv_memo)
+  	values(#{ca.atvCustNo},#{ca.atvDate},#{ca.atvPlace},#{ca.atvTitle},#{ca.atvDesc},#{ca.atvMemo})
+  </insert>
+  <select id="findcabyid" resultMap="BaseResultMap">
+  	select * from cst_activity where atv_id=#{id}
+  </select>
+  
+  <update id="updateca">
+  	update cst_activity set atv_date=#{ca.atvDate},atv_place=#{ca.atvPlace},atv_title=#{ca.atvTitle},
+  	atv_desc=#{ca.atvDesc},atv_memo=#{ca.atvMemo} where atv_id=#{ca.atvId}
+  </update>
+</mapper>

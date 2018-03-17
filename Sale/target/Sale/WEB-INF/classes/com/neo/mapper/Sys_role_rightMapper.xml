@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Sys_role_rightdao" >
+  <resultMap id="BaseResultMap" type="Sys_role_right" >
+    <id column="rf_id" property="rfId"/>
+    <result column="rf_role_id" property="rfRoleId"/>
+    <result column="rf_right_code" property="rfRightCode"/>
+  </resultMap>
+ 
+</mapper>

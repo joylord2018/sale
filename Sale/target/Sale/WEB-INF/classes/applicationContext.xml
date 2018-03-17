@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd 
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd 
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd ">
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:datasource.properties"></property>
+	</bean>
+	<!-- 数据源1 -->
+	<bean id="dataSource1"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"
+			value="${driver}">
+		</property>
+		<property name="url"
+			value="${sysurl}">
+		</property>
+		<property name="username" value="${username}"></property>
+		<property name="password" value="${password}"></property>
+	</bean>
+	<!-- 数据源2 -->
+	<bean id="dataSource2"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"
+			value="${driver}">
+		</property>
+		<property name="url"
+			value="${ordurl}">
+		</property>
+		<property name="username" value="${username}"></property>
+		<property name="password" value="${password}"></property>
+	</bean>
+	<!-- 数据池 -->
+	<bean class="com.neo.datasource.DynamicDataSource" id="dynamicdatasource">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry value-ref="dataSource1" key="sysSource"/>
+				<entry value-ref="dataSource2" key="orderSource"/>
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="dataSource1"></property>
+	</bean>
+	<!-- sessionFactory -->
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dynamicdatasource"></property>
+		<property name="typeAliasesPackage" value="com.neo.bo"></property>
+		<property name="mapperLocations" value="classpath*:com/neo/mapper/*.xml"></property>
+	</bean>
+	
+	<!-- redis数据池-->
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<!-- 最大连接数 -->
+		<property name="maxTotal" value="30"></property>
+		<!-- 最大空闲数 -->
+		<property name="maxIdle" value="10"></property>
+	</bean>
+	<!-- redis链接工厂访问redis数据库 -->
+	<bean class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" id="connectionFactory">
+		<!-- 配置地址 -->
+		<property name="hostName" value="127.0.0.1"></property>
+		<!-- 端口号 -->
+		<property name="port" value="6379"></property>
+		<!-- 数据池 -->
+		<property name="poolConfig" ref="jedisPoolConfig"></property>
+	</bean>
+	<!-- redis工具模板 -->
+	<bean id="redistemplet" class="org.springframework.data.redis.core.RedisTemplate">
+		<!-- 配置数据源 -->
+		<property name="connectionFactory" ref="connectionFactory"></property>
+		<!-- 允许事物 -->
+		<property name="enableTransactionSupport" value="true"></property>
+		<!-- 设置redis的key的数据类型 -->
+		<property name="keySerializer">
+			<!-- redis的string -->
+			<bean class="org.springframework.data.redis.serializer.StringRedisSerializer"></bean>
+		</property>
+		<!-- 设置redis的value的数据类型 -->
+		<property name="valueSerializer">
+			<!-- 对象类型 -->
+			<bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"></bean>
+		</property>
+	</bean>
+	<!-- redis工具类 -->
+	<bean class="com.neo.util.RedisUtil" id="redisUtil">
+		<!-- 属性注入redistemplet -->
+		<property name="rt" ref="redistemplet"></property>
+	</bean>
+	<!-- 配置dao与mapper映射 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.neo.dao"></property>
+	</bean>
+	<!-- 注解注入 -->
+	<context:component-scan base-package="com.neo.service"></context:component-scan>
+	<!-- 事物管理容器 -->
+	<bean id="txmanage" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dynamicdatasource"></property>
+	</bean>
+	
+	<!-- 事物管理模式-->
+	<tx:advice id="txadvice" transaction-manager="txmanage">
+		<tx:attributes>
+			<tx:method name="*"/>
+		</tx:attributes>
+	</tx:advice>
+	<bean id="changedbclass" class="com.neo.datasource.DataSourceChangeDB"></bean>
+	<!-- 切入点及织入 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* com.neo.service.impl.*.*(..))" id="pt"/>
+		<aop:advisor advice-ref="txadvice" pointcut-ref="pt" order="2"/>
+		<aop:aspect ref="changedbclass" order="1">
+			<aop:before method="changeDB" pointcut-ref="pt"/>
+		</aop:aspect>
+	</aop:config>
+	</beans>

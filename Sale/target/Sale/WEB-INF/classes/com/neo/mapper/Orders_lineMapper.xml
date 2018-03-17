@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Orders_linedao" >
+  <resultMap id="BaseResultMap" type="Orders_line" >
+    <id column="odd_id" property="oddId"/>
+    <result column="odd_order_id" property="oddOrderId"/>
+    <result column="odd_prod_id" property="oddProdId"/>
+    <result column="odd_count" property="oddCount"/>
+    <result column="odd_unit" property="oddUnit"/>
+    <result column="odd_price" property="oddPrice"/>
+    <!-- dto -->
+     <result column="pname" property="pname"/>
+     <result column="tname" property="tname"/>
+     <result column="bname" property="bname"/>
+     <result column="pprice" property="pprice"/>
+  </resultMap>
+  <select id="findbyoid" resultMap="BaseResultMap">
+  	SELECT ol.*,pro.prod_name AS pname,pro.prod_type AS tname,pro.prod_batch AS bname,pro.prod_price AS pprice FROM orders_line ol 
+  	INNER JOIN product pro ON pro.prod_id=ol.odd_prod_id
+  	WHERE odd_order_id=#{oid}
+  </select>
+</mapper>

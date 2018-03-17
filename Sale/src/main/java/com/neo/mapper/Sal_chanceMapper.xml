@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Sal_chancedao" >
+  <resultMap id="BaseResultMap" type="Sal_chance" >
+    <id column="chc_id" property="chcId"/>
+    <result column="chc_source" property="chcSource"/>
+    <result column="chc_cust_name" property="chcCustName"/>
+    <result column="chc_title" property="chcTitle"/>
+    <result column="chc_rate" property="chcRate"/>
+    <result column="chc_linkman" property="chcLinkman"/>
+    <result column="chc_tel" property="chcTel"/>
+    <result column="chc_desc" property="chcDesc"/>
+    <result column="chc_create_id" property="chcCreateId"/>
+    <result column="chc_create_date" property="chcCreateDate"/>
+    <result column="chc_due_id" property="chcDueId"/>
+    <result column="chc_due_date" property="chcDueDate"/>
+    <result column="chc_status" property="chcStatus"/>
+    <result column="crename" property="crename"/>
+    <result column="dname" property="dname"/>
+  </resultMap>
+  <!-- 添加销售机会 -->
+ <insert id="addSal_chance">
+  <![CDATA[
+  insert into sal_chance(chc_source,chc_cust_name,chc_title,chc_rate,chc_linkman,chc_tel,chc_desc,chc_create_id,chc_create_date)
+  values(#{sc.chcSource},#{sc.chcCustName},#{sc.chcTitle},#{sc.chcRate},#{sc.chcLinkman},#{sc.chcTel},#{sc.chcDesc},#{sc.chcCreateId},#{sc.chcCreateDate})
+  ]]>
+  </insert>
+  	<!-- 分页查询 -->
+  <select id="findSalchance" resultMap="BaseResultMap">
+  select chc_id, chc_cust_name,chc_title,chc_linkman,chc_tel,chc_create_date,chc_status from sal_chance
+  <where>
+  	<if test="scvo.cname!=null and scvo.cname!=''"> and chc_cust_name like concat('%',#{scvo.cname},'%')</if>
+  	<if test="scvo.desc!=null and scvo.desc!=''"> and chc_title like concat('%',#{scvo.desc},'%')</if>
+  	<if test="scvo.lname!=null and scvo.lname!=''"> and chc_linkman like concat('%',#{scvo.lname},'%')</if>
+  	<if test="1==1"> <![CDATA[and chc_status < 3]]> </if>
+  </where>
+  order by chc_create_date desc limit #{scvo.index},#{scvo.pagesize}
+  </select>
+  <!-- 总条数 -->
+   <select id="findSalcount" resultType="int">
+  select count(chc_id) from sal_chance
+  <where>
+  	<if test="scvo.cname!=null and scvo.cname!=''"> and chc_cust_name like concat('%',#{scvo.cname},'%')</if>
+  	<if test="scvo.desc!=null and scvo.desc!=''"> and chc_title like concat('%',#{scvo.desc},'%')</if>
+  	<if test="scvo.lname!=null and scvo.lname!=''"> and chc_linkman like concat('%',#{scvo.lname},'%')</if>
+  	<if test="1==1"> <![CDATA[and chc_status < 3]]> </if>
+  </where>
+  </select>
+  	<!-- 按id查询 -->
+  	<select id="findscbyid" resultMap="BaseResultMap">
+  		select sc.*,su.usr_name as crename
+  		<if test="dueid!=null and dueid!=0">
+  		,su2.usr_name as dname
+  		</if>
+  		 from sal_chance sc
+  		
+  		inner join sys_user su on su.usr_id=sc.chc_create_id
+  		<if test="dueid!=null and dueid!=0">
+  		inner join sys_user su2 on su2.usr_id=sc.chc_due_id
+  		</if>
+  		where chc_id=#{id}
+  	</select>
+  	<!-- 指定销售经理 -->
+  	<update id="updatesalbyid">
+  		update sal_chance set chc_due_id=#{sc.chcDueId},chc_due_date=#{sc.chcDueDate},chc_status=#{sc.chcStatus} where chc_id=#{sc.chcId}
+  	</update>
+  	<!-- 修改销售机会 -->
+  	<update id="updatescbyid">
+  		update sal_chance 
+  		<set>
+  			<if test="sc.chcSource!=null and sc.chcSource!=''">chc_source=#{sc.chcSource},</if>
+  			<if test="sc.chcCustName!=null and sc.chcCustName!=''">chc_cust_name=#{sc.chcCustName},</if>
+  			<if test="sc.chcTitle!=null and sc.chcTitle!=''">chc_title=#{sc.chcTitle},</if>
+  			<if test="sc.chcRate!=null and sc.chcRate!=''">chc_rate=#{sc.chcRate},</if>
+  			<if test="sc.chcLinkman!=null and sc.chcLinkman!=''">chc_linkman=#{sc.chcLinkman},</if>
+  			<if test="sc.chcTel!=null and sc.chcTel!=''">chc_tel=#{sc.chcTel},</if>
+  			<if test="sc.chcDesc!=null and sc.chcDesc!=''">chc_desc=#{sc.chcDesc},</if>
+  			<if test="sc.chcDueId!=null and sc.chcDueId!=''">chc_due_id=#{sc.chcDueId},</if>
+  			<if test="sc.chcDueDate!=null and sc.chcDueDate!=''">chc_due_date=#{sc.chcDueDate},</if>
+  		</set>
+  		where chc_id=#{sc.chcId}
+  	</update>
+	<!-- 删除 -->
+	<delete id="deletesal">
+		delete from sal_chance where chc_id=#{id}
+	</delete>
+	
+	<!-- 开发客户 -->
+	 	<!-- 分页查询 -->
+  <select id="finddev" resultMap="BaseResultMap">
+  select chc_id, chc_cust_name,chc_title,chc_linkman,chc_tel,chc_create_date,chc_status from sal_chance
+  <where>
+  	<if test="scvo.cname!=null and scvo.cname!=''"> and chc_cust_name like concat('%',#{scvo.cname},'%')</if>
+  	<if test="scvo.desc!=null and scvo.desc!=''"> and chc_title like concat('%',#{scvo.desc},'%')</if>
+  	<if test="scvo.lname!=null and scvo.lname!=''"> and chc_linkman like concat('%',#{scvo.lname},'%')</if>
+  	<if test="1==1">and chc_status >1</if>
+  </where>
+    order by chc_create_date desc limit #{scvo.index},#{scvo.pagesize}
+  </select>
+  <!-- 总条数 -->
+   <select id="finddevcount" resultType="int">
+  select count(chc_id) from sal_chance
+  <where>
+  	<if test="scvo.cname!=null and scvo.cname!=''"> and chc_cust_name like concat('%',#{scvo.cname},'%')</if>
+  	<if test="scvo.desc!=null and scvo.desc!=''"> and chc_title like concat('%',#{scvo.desc},'%')</if>
+  	<if test="scvo.lname!=null and scvo.lname!=''"> and chc_linkman like concat('%',#{scvo.lname},'%')</if>
+  	<if test="1==1">and chc_status >1</if>
+  </where>
+  </select>
+  <!-- 按id查询 -->
+<!--   	<select id="findscbyidup" resultMap="BaseResultMap">
+  		select sc.*,su.usr_name as crename,su2.usr_name as dname from sal_chance sc
+  		inner join sys_user su on su.usr_id=sc.chc_create_id
+  		inner join sys_user su2 on su2.usr_id=sc.chc_due_id
+  		where chc_id=#{id}
+  	</select> -->
+  	<update id="updatescst">
+  		update sal_chance set chc_status=#{res} where chc_id=#{id}
+  	</update>
+</mapper>

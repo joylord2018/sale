@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Order_accountdao" >
+	<select id="findfromorder" resultType="Order_account">
+		SELECT odr_customer_id AS cust_id,oyear AS YEAR,SUM(total) AS COUNT FROM 
+		(SELECT odr_customer_id,YEAR(odr_date) AS oyear,total FROM `order_cust` oc
+		INNER JOIN (SELECT odd_order_id,SUM(odd_price) AS total FROM `orders_line` GROUP BY  odd_order_id )ol ON ol.`odd_order_id`=oc.`odr_id`
+		) ss
+		 WHERE oyear=#{year} GROUP BY odr_customer_id
+	</select>
+	<insert id="addAccount">
+		insert into order_account (cust_id,count,year) values(#{acc.cust_id},#{acc.count},#{acc.year})
+	</insert>
+	
+	<select id="findbyvo" resultType="Order_account">
+	<!-- 按年份查询 -->
+	<if test="year!=null">
+		SELECT oa.*,cc.cust_name AS cname FROM order_account oa
+		INNER JOIN `jb_crm_team`.`cst_customer` cc ON cc.cust_no=oa.cust_id 
+		<where>
+			<if test="cname!=null and cname!=''"> and cc.cust_name like concat('%',#{cname},'%') </if>
+			<if test="year!=null"> and year=#{year}</if>
+		</where>
+		order by count desc
+	</if>
+	<if test="year==null">
+		SELECT cc.cust_name AS cname,SUM(`count`)  AS count FROM order_account oa
+		INNER JOIN `jb_crm_team`.`cst_customer` cc ON cc.cust_no=oa.cust_id
+		<where>
+			<if test="cname!=null and cname!=''"> and cc.cust_name like concat('%',#{cname},'%') </if>
+		</where>
+		GROUP BY cust_id order by SUM(`count`) desc
+	</if>
+	</select>
+</mapper>

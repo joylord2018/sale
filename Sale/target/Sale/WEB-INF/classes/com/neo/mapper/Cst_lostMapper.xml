@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Cst_lostdao" >
+  <resultMap id="BaseResultMap" type="Cst_lost" >
+    <id column="lst_id" property="lstId"/>
+    <result column="lst_cust_no" property="lstCustNo"/>
+    <result column="lst_cust_manager_id" property="lstCustManagerId"/>
+    <result column="lst_last_order_date" property="lstLastOrderDate"/>
+    <result column="lst_lost_date" property="lstLostDate"/>
+    <result column="lst_delay" property="lstDelay"/>
+    <result column="lst_reason" property="lstReason"/>
+    <result column="lst_status" property="lstStatus"/>
+    <!-- dto -->
+    <result column="cname" property="cname"/>
+    
+    <result column="mname" property="mname"/>
+    
+    <result column="cstatus" property="cstatus"/>
+  </resultMap>
+  <insert id="addCl">
+  	insert  into cst_lost (lst_cust_no,lst_cust_manager_id,lst_last_order_date,lst_lost_date,lst_delay,lst_reason,lst_status)
+ 	 values(#{cl.lstCustNo},#{cl.lstCustManagerId},#{cl.lstLastOrderDate},#{cl.lstLostDate},#{cl.lstDelay},#{cl.lstReason},#{cl.lstStatus})
+  </insert>
+  
+   <!-- 查询所有 -->
+  <select id="findCL" resultMap="BaseResultMap">
+  	SELECT cl.*,cc.`cust_name` AS cname,su.usr_name AS mname,bd.dict_item AS cstatus FROM cst_lost cl
+  	INNER JOIN cst_customer cc ON cc.cust_no=cl.lst_cust_no
+  	INNER JOIN `sys_user` su ON su.usr_id=cl.lst_cust_manager_id
+  	INNER JOIN (SELECT * FROM `bas_dict` WHERE dict_type='lst_status') bd ON bd.dict_value=cl.lst_status
+  	<where>
+  		<if test="clvo.custname!=null and clvo.custname!=''"> and cc.cust_name like concat('%',#{clvo.custname},'%')</if>
+  		<if test="clvo.managename!=null and clvo.managename!=''"> and su.usr_name like concat('%',#{clvo.managename},'%')</if>
+  		<if test="clvo.lststatus!=null and clvo.lststatus!=''"> and cl.lst_status = #{clvo.lststatus}</if>
+  	</where>
+  	order by cl.lst_id limit #{clvo.index},#{clvo.pagesize}
+  </select>
+  
+  <select id="findCLcount" resultType="int">
+  	SELECT count(cl.lst_id) FROM cst_lost cl
+  	INNER JOIN cst_customer cc ON cc.cust_no=cl.lst_cust_no
+  	INNER JOIN `sys_user` su ON su.usr_id=cl.lst_cust_manager_id
+  	INNER JOIN (SELECT * FROM `bas_dict` WHERE dict_type='lst_status') bd ON bd.dict_value=cl.lst_status
+  	<where>
+  		<if test="clvo.custname!=null and clvo.custname!=''"> and cc.cust_name like concat('%',#{clvo.custname},'%')</if>
+  		<if test="clvo.managename!=null and clvo.managename!=''"> and su.usr_name like concat('%',#{clvo.managename},'%')</if>
+  		<if test="clvo.lststatus!=null and clvo.lststatus!=''"> and cl.lst_status = #{clvo.lststatus}</if>
+  	</where>
+  </select>
+</mapper>

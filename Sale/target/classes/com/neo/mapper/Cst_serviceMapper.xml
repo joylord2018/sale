@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Cst_servicedao" >
+  <resultMap id="BaseResultMap" type="Cst_service" >
+    <id column="svr_id" property="svrId"/>
+    <result column="svr_type" property="svrType"/>
+    <result column="svr_title" property="svrTitle"/>
+    <result column="svr_cust_no" property="svrCustNo"/>
+    <result column="svr_status" property="svrStatus"/>
+    <result column="svr_request" property="svrRequest"/>
+    <result column="svr_create_id" property="svrCreateId"/>
+    <result column="svr_create_date" property="svrCreateDate"/>
+    <result column="svr_due_id" property="svrDueId"/>
+    <result column="svr_due_date" property="svrDueDate"/>
+    <result column="svr_deal" property="svrDeal"/>
+    <result column="svr_deal_id" property="svrDealId"/>
+    <result column="svr_deal_date" property="svrDealDate"/>
+    <result column="svr_result" property="svrResult"/>
+    <result column="svr_satisfy" property="svrSatisfy"/>
+	<!-- dto -->
+    <result column="cname" property="cname"/>
+    <result column="uname" property="uname"/>
+    <result column="type" property="type"/>
+    <result column="duname" property="duname"/>
+    <result column="sname" property="sname"/>
+    <result column="dealname" property="dealname"/>
+    <result column="msg" property="msg"/>
+    <result column="result" property="result"/>
+  </resultMap>
+  <insert id="addcs">
+  	insert into cst_service(svr_type,svr_title,svr_cust_no,svr_status,svr_request,svr_create_id,svr_create_date)
+  	 values(#{cs.svrType},#{cs.svrTitle},#{cs.svrCustNo},#{cs.svrStatus},#{cs.svrRequest},#{cs.svrCreateId},#{cs.svrCreateDate})
+  </insert>
+  
+  <select id="findcsli" resultMap="BaseResultMap">
+  	SELECT cs.*,cc.cust_name AS cname,su.`usr_name` AS uname,bd.dict_item AS `type` FROM cst_service cs
+		INNER JOIN `cst_customer` cc ON cc.cust_no=cs.svr_cust_no
+		INNER JOIN  `sys_user` su ON su.usr_id=cs.`svr_create_id`
+		INNER JOIN (SELECT * FROM `bas_dict` WHERE dict_type='svr_type') bd ON bd.dict_value=cs.`svr_type`
+		<where>
+		
+			<if test="csvo.cname!=null and csvo.cname!=''"> and cc.cust_name like concat('%',#{csvo.cname},'%')</if>
+			<if test="csvo.title!=null and csvo.title!=''"> and svr_title like concat('%',#{csvo.title},'%')</if>
+			<if test="csvo.status!=null and csvo.status!=''"> and svr_status=#{csvo.status}</if>
+			<if test="csvo.type!=null and csvo.type!=''"> and svr_type =#{csvo.type}</if>
+			<if test="csvo.startdate!=null"> 
+				<![CDATA[
+					and svr_create_date >#{csvo.startdate}
+				]]>
+			</if>
+			<if test="csvo.enddate!=null"> 
+				<![CDATA[
+					and svr_create_date < #{csvo.enddate}
+				]]>
+				</if>
+		</where>
+		order by svr_create_date desc limit #{csvo.index},#{csvo.pagesize}	
+  </select>
+  
+  <select id="findcccount" resultType="int">
+  	select count(cs.svr_id) from cst_service cs
+  	INNER JOIN `cst_customer` cc ON cc.cust_no=cs.svr_cust_no
+	INNER JOIN  `sys_user` su ON su.usr_id=cs.`svr_create_id`
+	INNER JOIN (SELECT * FROM `bas_dict` WHERE dict_type='svr_type') bd ON bd.dict_value=cs.`svr_type`
+	<where>
+	
+		<if test="csvo.cname!=null and csvo.cname!=''"> and cc.cust_name like concat('%',#{csvo.cname},'%')</if>
+		<if test="csvo.title!=null and csvo.title!=''"> and svr_title like concat('%',#{csvo.title},'%')</if>
+		<if test="csvo.status!=null and csvo.status!=''"> and svr_status=#{csvo.status}</if>
+		<if test="csvo.type!=null and csvo.type!=''"> and svr_type =#{csvo.type}</if>
+		<if test="csvo.startdate!=null"> 
+			<![CDATA[
+				and svr_create_date > #{csvo.startdate}
+			]]>
+		</if>
+		<if test="csvo.enddate!=null"> 
+			<![CDATA[
+				and svr_create_date < #{csvo.enddate}
+			]]>
+			</if>
+	</where>
+  </select>
+  <update id="updateCS">
+  	update cst_service cs 
+  	<set>
+  		<if test="cs.svrType!=null and cs.svrType!=''"> svr_type=#{cs.svrType},</if>
+  		<if test="cs.svrTitle!=null and cs.svrTitle!=''"> svr_title=#{cs.svrTitle},</if>
+  		<if test="cs.svrCustNo!=null and cs.svrCustNo!=''"> svr_cust_no=#{cs.svrCustNo},</if>
+  		<if test="cs.svrStatus!=null and cs.svrStatus!=''"> svr_status=#{cs.svrStatus},</if>
+  		<if test="cs.svrRequest!=null and cs.svrRequest!=''"> svr_request=#{cs.svrRequest},</if>
+  		<if test="cs.svrCreateId!=null"> svr_create_id=#{cs.svrCreateId},</if>
+  		<if test="cs.svrCreateDate!=null"> svr_create_date=#{cs.svrCreateDate},</if>
+  		<if test="cs.svrDueId!=null"> svr_due_id=#{cs.svrDueId},</if>
+  		<if test="cs.svrDueDate!=null"> svr_due_date=#{cs.svrDueDate},</if>
+  		<if test="cs.svrDeal!=null and cs.svrDeal!=''"> svr_deal=#{cs.svrDeal},</if>
+  		<if test="cs.svrDealId!=null"> svr_deal_id=#{cs.svrDealId},</if>
+  		<if test="cs.svrDealDate!=null"> svr_deal_date=#{cs.svrDealDate},</if>
+  		<if test="cs.svrResult!=null and cs.svrResult!=''"> svr_result=#{cs.svrResult},</if>
+  		<if test="cs.svrSatisfy!=null"> svr_satisfy=#{cs.svrSatisfy},</if>
+  	</set>
+  	where svr_id=#{cs.svrId}
+  </update>
+	
+	<select id="findcsbyid" resultMap="BaseResultMap">
+		SELECT cs.*,cc.cust_name AS cname,su.`usr_name` AS uname,
+		<if test="type>1">
+		su2.`usr_name` AS duname,
+		</if>
+		<if test="type>2">
+		su3.`usr_name` AS dealname,
+		</if>
+		bd.dict_item AS `type`,bd2.dict_item as sname
+		 FROM cst_service cs
+		INNER JOIN `cst_customer` cc ON cc.cust_no=cs.svr_cust_no
+		INNER JOIN  `sys_user` su ON su.usr_id=cs.`svr_create_id`
+		<if test="type>1">
+		INNER JOIN  `sys_user` su2 ON su2.usr_id=cs.`svr_due_id`
+		</if>
+		<if test="type>2">
+		INNER JOIN  `sys_user` su3 ON su3.usr_id=cs.`svr_deal_id`
+		</if>
+		INNER JOIN (select * from bas_dict where dict_type='svr_status') bd2 on bd2.dict_value=cs.svr_status
+		INNER JOIN (SELECT * FROM `bas_dict` WHERE dict_type='svr_type') bd ON bd.dict_value=cs.`svr_type`
+		where svr_id=#{id}
+	</select>
+	
+	<select id="goucheng" resultMap="BaseResultMap">
+	 SELECT bd.dict_item AS msg,COUNT(cs.svr_id) AS result FROM `cst_service` cs
+	 INNER JOIN (SELECT * FROM `bas_dict` WHERE dict_type='svr_type') bd ON bd.dict_value=cs.svr_type
+	 <if test="year!=null">
+	  WHERE YEAR(svr_create_date)=#{year}
+	 </if>
+	 GROUP BY svr_type
+	</select>
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Cst_linkmandao" >
+  <resultMap id="BaseResultMap" type="Cst_linkman" >
+    <id column="lkm_id" property="lkmId"/>
+    <result column="lkm_cust_no" property="lkmCustNo"/>
+    <result column="lkm_name" property="lkmName"/>
+    <result column="lkm_sex" property="lkmSex"/>
+    <result column="lkm_postion" property="lkmPostion"/>
+    <result column="lkm_tel" property="lkmTel"/>
+    <result column="lkm_mobile" property="lkmMobile"/>
+    <result column="lkm_memo" property="lkmMemo"/>
+    <!--dto -->
+     <result column="cname" property="cname"/>
+    
+  </resultMap>
+  <insert id="addLinkman">
+  insert into cst_linkman (lkm_cust_no,lkm_name,lkm_sex,lkm_postion,lkm_tel,lkm_mobile,lkm_memo)
+  values(#{cl.lkmCustNo},#{cl.lkmName},#{cl.lkmSex},#{cl.lkmPostion},#{cl.lkmTel},#{cl.lkmMobile},#{cl.lkmMemo})
+  </insert>
+  <select id="findbycustid" resultMap="BaseResultMap">
+  	select cl.*,cc.cust_name as cname from cst_linkman cl
+  	inner join cst_customer cc on cc.cust_no=cl.lkm_cust_no
+  	where lkm_cust_no=#{id}
+  </select>
+  
+  <select id="findbyid" resultMap="BaseResultMap">
+  	select * from cst_linkman where lkm_id=#{id}
+  </select>
+  
+  <update id="updatecl">
+  	update cst_linkman
+  	<set>
+  		<if test="cl.lkmName!=null and cl.lkmName!=''"> lkm_name=#{cl.lkmName},</if>
+  		<if test="cl.lkmSex!=null and cl.lkmSex!=''"> lkm_sex=#{cl.lkmSex},</if>
+  		<if test="cl.lkmPostion!=null and cl.lkmPostion!=''"> lkm_postion=#{cl.lkmPostion},</if>
+  		<if test="cl.lkmTel!=null and cl.lkmTel!=''"> lkm_tel=#{cl.lkmTel},</if>
+  		<if test="cl.lkmMobile!=null and cl.lkmMobile!=''"> lkm_mobile=#{cl.lkmMobile},</if>
+  		<if test="cl.lkmMemo!=null and cl.lkmMemo!=''"> lkm_memo=#{cl.lkmMemo},</if>
+  	</set>
+  	where lkm_id=#{cl.lkmId}
+  </update>
+  
+  <delete id="deletecl">
+  	delete from cst_linkman where lkm_id=#{id}
+  </delete>
+</mapper>

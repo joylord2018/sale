@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Bas_dictdao" >
+  <resultMap id="BaseResultMap" type="Bas_dict" >
+    <id column="dict_id" property="dictId"/>
+    <result column="dict_type" property="dictType"/>
+    <result column="dict_item" property="dictItem"/>
+    <result column="dict_value" property="dictValue"/>
+    <result column="dict_is_editable" property="dictIsEditable"/>
+     <result column="dict_cname" property="dict_cname"/>
+  </resultMap>
+	<select id="findbytype" resultMap="BaseResultMap">
+		select * from bas_dict where dict_type=#{type}
+	</select>
+	
+	<select id="findall" resultMap="BaseResultMap">
+		SELECT * FROM `bas_dict`
+		<where>
+			<if test="bvo.type!=null and bvo.type!=''">
+			  and dict_cname like concat('%',#{bvo.type},'%')
+			</if>
+			<if test="bvo.item!=null and bvo.item!=''">
+			  and dict_item like concat('%',#{bvo.item},'%')
+			</if>
+			<if test="bvo.value!=null and bvo.value!=''">
+			  and dict_value like concat('%',#{bvo.value},'%')
+			</if>
+		</where>
+		 ORDER BY dict_type,dict_value 
+		limit #{bvo.index},#{bvo.pagesize}
+	</select>
+	
+	<select id="findallcounts" resultType="int">
+		SELECT count(dict_id) FROM `bas_dict` 
+		<where>
+			<if test="bvo.type!=null and bvo.type!=''">
+			  and dict_cname=#{bvo.type}
+			</if>
+			<if test="bvo.item!=null and bvo.item!=''">
+			  and dict_item=#{bvo.item}
+			</if>
+			<if test="bvo.value!=null and bvo.value!=''">
+			  and dict_value=#{bvo.value}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="addBic">
+		insert into bas_dict (dict_type,dict_item,dict_value,dict_is_editable,dict_cname) 
+		values(#{bas.dictType},#{bas.dict_item},#{bas.dictValue},#{bas.dictIsEditable},#{bas.dictCname})
+	</insert>
+	
+	<select id="buquan" resultMap="BaseResultMap">
+		select * from bas_dict where dict_cname like concat('%',#{cname},'%')
+	</select>
+</mapper>

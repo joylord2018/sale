@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Sal_plandao" >
+  <resultMap id="BaseResultMap" type="Sal_plan" >
+    <id column="pla_id" property="plaId"/>
+    <result column="pla_chc_id" property="plaChcId"/>
+    <result column="pla_date" property="plaDate"/>
+    <result column="pla_todo" property="plaTodo"/>
+    <result column="pla_result" property="plaResult"/>
+  </resultMap>
+  <select id="findspbyid" resultMap="BaseResultMap">
+  	select * from sal_plan where pla_chc_id=#{scid}
+  </select>
+  <insert id="addsp">
+  	insert into sal_plan (pla_chc_id,pla_date,pla_todo) values(#{sp.plaChcId},#{sp.plaDate},#{sp.plaTodo})
+  </insert>
+  <delete id="delsp">
+  delete from sal_plan where pla_id=#{id}
+  </delete>
+  <update id="updatespres">
+  update sal_plan set pla_result=#{res} where pla_id=#{id}
+  </update>
+</mapper>

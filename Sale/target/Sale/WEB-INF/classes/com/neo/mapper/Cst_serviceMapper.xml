@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Cst_servicedao" >
+  <resultMap id="BaseResultMap" type="Cst_service" >
+    <id column="svr_id" property="svrId"/>
+    <result column="svr_type" property="svrType"/>
+    <result column="svr_title" property="svrTitle"/>
+    <result column="svr_cust_no" property="svrCustNo"/>
+    <result column="svr_status" property="svrStatus"/>
+    <result column="svr_request" property="svrRequest"/>
+    <result column="svr_create_id" property="svrCreateId"/>
+    <result column="svr_create_date" property="svrCreateDate"/>
+    <result column="svr_due_id" property="svrDueId"/>
+    <result column="svr_due_date" property="svrDueDate"/>
+    <result column="svr_deal" property="svrDeal"/>
+    <result column="svr_deal_id" property="svrDealId"/>
+    <result column="svr_deal_date" property="svrDealDate"/>
+    <result column="svr_result" property="svrResult"/>
+    <result column="svr_satisfy" property="svrSatisfy"/>
+  </resultMap>
+  
+</mapper>

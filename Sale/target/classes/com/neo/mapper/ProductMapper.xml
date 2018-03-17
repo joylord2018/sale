@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Ord_Productdao" >
+  <resultMap id="BaseResultMap" type="Ord_Product" >
+    <id column="prod_id" property="prodId"/>
+    <result column="prod_name" property="prodName"/>
+    <result column="prod_type" property="prodType"/>
+    <result column="prod_batch" property="prodBatch"/>
+    <result column="prod_unit" property="prodUnit"/>
+    <result column="prod_price" property="prodPrice"/>
+    <result column="prod_memo" property="prodMemo"/>
+  </resultMap>
+  	<select id="findallpro" resultMap="BaseResultMap">
+  		select * from product 
+  		<where>
+  			<if test="prvo.pname!=null and prvo.pname!=''"> and prod_name like concat('%',#{prvo.pname},'%')</if>
+  			<if test="prvo.xinhao!=null and prvo.xinhao!=''"> and prod_type like concat('%',#{prvo.xinhao},'%')</if>
+  			<if test="prvo.pici!=null and prvo.pici!=''"> and prod_batch like concat('%',#{prvo.pici},'%')</if>
+  		</where>
+  		limit #{prvo.index},#{prvo.pagesize}
+  	</select>
+  	<select id="findprocount" resultType="int">
+  		select count(prod_id) from product 
+  		<where>
+  			<if test="prvo.pname!=null and prvo.pname!=''"> and prod_name like concat('%',#{prvo.pname},'%')</if>
+  			<if test="prvo.xinhao!=null and prvo.xinhao!=''"> and prod_type like concat('%',#{prvo.xinhao},'%')</if>
+  			<if test="prvo.pici!=null and prvo.pici!=''"> and prod_batch like concat('%',#{prvo.pici},'%')</if>
+  		</where>
+  	</select>
+</mapper>

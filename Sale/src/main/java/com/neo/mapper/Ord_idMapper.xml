@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neo.dao.Ord_iddao" >
+  <resultMap id="BaseResultMap" type="Ord_id">
+    <id column="odr_id" property="odrId"/>
+    <result column="odr_customer_id" property="odrCustomerId"/>
+    <result column="odr_date" property="odrDate"/>
+    <result column="odr_addr" property="odrAddr"/>
+    <result column="odr_status" property="odrStatus"/>
+     <result column="sprice" property="sprice"/>
+     <!--dto -->
+     <result column="cname" property="cname"/>
+  </resultMap>
+	<select id="findbyid" resultMap="BaseResultMap">
+		SELECT oc.*,SUM(ol.odd_price) AS sprice FROM `order_cust` oc
+	  INNER JOIN `orders_line` ol ON ol.odd_order_id=oc.`odr_id`
+	  WHERE oc.`odr_id`=#{id}
+	</select>
+	
+	<select id="findords" resultMap="BaseResultMap">
+		SELECT oc.*,cc.cust_name AS cname FROM `jb_sale`.order_cust oc 
+		INNER JOIN jb_crm_team.cst_customer cc ON cc.cust_no=oc.odr_customer_id
+		WHERE odr_customer_id =#{cid}
+		ORDER BY odr_id
+		LIMIT #{index},#{pagesize}
+	</select>
+	
+	<select id="countord" resultType="int">
+		select count(odr_id) from order_cust where odr_customer_id =#{cid}
+	</select>
+	
+	<select id="findlastord" resultMap="BaseResultMap">
+		select * from order_cust where odr_customer_id =#{cid} order by odr_date desc limit 0,1
+	</select>
+</mapper>
